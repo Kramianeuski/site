@@ -1,0 +1,87 @@
+{{ header }}
+<style>
+@media (min-width: 1200px) {
+    #information-configurations .rm-module-col {
+        -ms-flex:0 0 25%;
+        flex: 0 0 25%;
+        max-width: 25%
+    }
+}
+
+#information-configurations .rm-module-title {
+    text-align: center;
+}
+</style>
+<div id="information-configurations" class="container">
+	{% if breadcrumbs %}
+	<nav aria-label="breadcrumb" role="navigation">
+		<ul class="breadcrumb rm-breadcrumb">
+			{% for breadcrumb in breadcrumbs %}
+			<li class="breadcrumb-item rm-breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+			{% endfor %}
+		</ul>
+	</nav>
+	{% endif %}
+	<div class="row">
+		<div class="col-lg-12 rm-page-title">
+			<h1>{{ heading_title }}</h1>
+		</div>
+	</div>
+	<div class="content-top-box">{{ content_top }}</div>
+	<div id="content">
+    			<div class="row no-gutters">
+				  <div class="col-12 col-md-4 col-xl-4 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+						<img src="/image/case.png" width="200" height="200" class="img-fluid" alt="">
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+						    <a href="/catalog-configurations/">Каталог конфигураций</a>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				  <div class="col-12 col-md-4 col-xl-4 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <img src="/image/case.png" width="200" height="200" class="img-fluid" alt="">
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					    	<a href="#">Загрузить из Excel</a>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+      			  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <img src="/image/case.png" width="200" height="200" class="img-fluid" alt="">
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+							<a href="#">Подобрать по параметрам</a>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+ 				  <div class="col-12 col-md-4 col-xl-4 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <img src="/image/case.png" width="200" height="200" class="img-fluid" alt="">
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+				        	<a href="/configurator/">Собрать из шаблона</a>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+      			</div>
+
+
+	</div>
+	{{ content_bottom }}
+</div>
+{{ footer }}

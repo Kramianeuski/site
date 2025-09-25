@@ -1,0 +1,2379 @@
+{{ header }}
+<style>
+.deactive {
+	display: none;
+}
+</style>
+{%
+	set box_class_arr = {
+		1: {
+			'cell': {2: 'f-col-6 xs-12', 3: 'f-col-4 sm-6 xs-12', 4: 'f-col-3 md-4 sm-6 xs-12'},
+			'list': {1: 'f-col-12'}
+		},
+		2: {
+			'cell': {2: 'f-col-6 xs-12', 3: 'f-col-4 md-6 xs-12', 4: 'f-col-4 md-6 xs-12'},
+			'list': {1: 'f-col-12'}
+		},
+		3: {
+			'cell': {2: 'f-col-6 md-12 sm-6 xs-12', 3: 'f-col-6 md-12 sm-6 xs-12', 4: 'f-col-6 md-12 sm-6 xs-12'},
+			'list': {1: 'f-col-12'}
+		},
+	}
+%}
+{% if column_left and column_right %}
+	{% set columns = 'col-num-3' %}
+	{% set content_class = 'f-col-6 md-12' %}
+	{% set box_classes = box_class_arr[3][grid_type][max_cols] ~ ' type-' ~ grid_type %}
+{% elseif column_left or column_right %}
+	{% set columns = 'col-num-2' %}
+	{% set content_class = 'f-col-9 md-12' %}
+	{% set box_classes = box_class_arr[2][grid_type][max_cols] ~ ' type-' ~ grid_type %}
+{% else %}
+	{% set columns = 'col-num-1' %}
+	{% set content_class = 'f-col-12 md-12' %}
+	{% set box_classes = box_class_arr[1][grid_type][max_cols] ~ ' type-' ~ grid_type %}
+{% endif %}
+<div class="container">
+	{% if brdcrmb %}
+	<nav aria-label="breadcrumb" role="navigation">
+		<ul class="breadcrumb rm-breadcrumb">
+			<li class="breadcrumb-item rm-breadcrumb-item"><a href="/"><i class="fa fa-home"></i></a></li>
+			<li class="breadcrumb-item rm-breadcrumb-item"><a href="/configurations/">Конфигурации</a></li>
+			<li class="breadcrumb-item rm-breadcrumb-item">{{ main_title }}</li>
+		</ul>
+	</nav>
+	{% endif %}
+	<div class="row">
+        <div class="col-12 rm-page-title">
+            <h1 id="main-title">{{ main_title }}</h1>
+        </div>
+    </div>
+	<main class="page-layout {{ columns }} f-row" role="main">
+		{{ column_left }}
+		<article id="content" class="{{ content_class }}">
+		{% if content_top %}
+			<aside class="content-top">{{ content_top }}</aside>
+		{% endif %}
+
+		{% if main_desc %}
+			<div id="main-desc" class="main-desc f-row">
+			{% if preset['image'] is not empty %}
+				<div class="md-img f-col f-row align-center justify-center">
+					<img src="{{ preset['image'] }}" alt="{{ preset['name'] }}" class="img-fluid">
+				</div>
+				<div class="md-content f-col-6 md-12 align-self-center">{{ main_desc|raw }}</div>
+			{% else %}
+				<div class="md-content f-col-12">{{ main_desc|raw }}</div>
+			{% endif %}
+			</div>
+		{% endif %}
+		{% if service_code %}
+			<div class="widget-block">{{ service_code|raw }}</div>
+		{% endif %}
+			<div id="conf-panel" class="deactive">
+			<div  class="conf-panel f-row align-center justify-center" role="toolbar">
+				<div class="cp-total f-col-6 sm-8">
+				{% if txt_cost %}
+					<div class="total-cost-text">{{ txt_cost }}</div>
+				{% endif %}
+					<div id="total-cost" data-total-cost="{{ total_cost }}">{{ total_cost_format }}</div>
+				{% if progress_num %}
+					<div id="cfg-progress" class="f-row align-center">
+						<div class="line-progress f-col">
+							<div class="level"
+								role="progressbar"
+								data-progress-value="{{ build_level }}"
+								aria-valuenow="{{ build_level }}"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								style="width: {{ build_level }}%;">
+							</div>
+						</div>
+						<div class="progress-label f-col-12">
+							{{ txt_cfg_progress }} <span class="label-value">{{ build_level }}%</span>
+						</div>
+					</div>
+				{% endif %}
+				</div>
+				<div class="cp-control f-col f-row">
+					<div class="f-col f-row">
+						<!--
+						<button class="f-col bttn bttn-type" onclick="https://a-energ.ru/configurator/'">
+							<svg class="cfg-icon"><use xlink:href="#i-svg-change" /></svg>
+							<span>Тип шкафа</span>
+						</button>
+						-->
+						<button class="f-col bttn bttn-to-cart" id="cfg-to-cart">
+							<svg class="cfg-icon"><use xlink:href="#i-svg-cart" /></svg>
+							<span>{{ txt_cart_btn }}</span>
+						</button>
+						<button class="f-col bttn bttn-cfg-save" id="cfg-save">
+							<svg class="cfg-icon"><use xlink:href="#i-svg-check" /></svg>
+							<span>Сохранить</span>
+						</button>
+						<button class="f-col bttn bttn-cfg-table" id="cfg-table">
+							<svg class="cfg-icon"><use xlink:href="#i-svg-table-cnt" /></svg>
+							<span>Выгрузить</span>
+						</button>
+						<button class="f-col bttn bttn-clear" id="cfg-clear">
+							<svg class="cfg-icon"><use xlink:href="#i-svg-close-b" /></svg>
+							<span>{{ txt_clear_btn }}</span>
+						</button>
+					</div>
+				</div>
+			</div>
+			</div>
+			<div id="region" class="section-grid">
+            	<h2 class="region-title f-col-12" style="text-align: center;padding: 16px;margin: 0;font-size: 20px;font-weight: 500">Выбирите тип шкафа </h2>
+            	<div class="row no-gutters" style="text-align: center;">
+				  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-10" type="radio" name="region" value="region-10" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-10" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩАВРСС"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩАВРСС
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-11" type="radio" name="region" value="region-11" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-11" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩРСС 3.1"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩРСС 3.1
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+      			  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-12" type="radio" name="region" value="region-12" onchange="Selected(this)"  style="display: none;">
+				          <label for="image-region-12" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩРСС 3.2"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩРСС 3.2
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+ 				  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-13" type="radio" name="region" value="region-13" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-13" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩРСС 2.1"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩРСС 2.1
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+                  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-13" type="radio" name="region" value="region-14" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-13" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩРСС 2.3"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩРСС 2.3
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+                  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-15" type="radio" name="region" value="region-15" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-15" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ЩРСС1"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					      ЩРСС1
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				  <div class="col-12 col-md-4 col-xl-3 rm-module-col">
+				    <div class="rm-module-item d-flex flex-md-column h-100">
+				      <div class="rm-module-img d-flex flex-column d-md-block">
+				      	  <input id="image-region-16" type="radio" name="region" value="region-16" onchange="Selected(this)" style="display: none;">
+				          <label for="image-region-16" ><img src="/image/case.png" width="200" height="200" class="img-fluid" alt="ВРУ"> </label>
+					  </div>
+				      <div class="rm-module-caption d-flex flex-column flex-grow-1">
+				        <div class="rm-module-title">
+					     ВРУ
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+				<div class="btn-group mt-4">
+		        	<button onclick="window.location.href='/configurations/';" class="rm-btn dark"><span class="rm-btn-text">Назад</span></button>
+		        </div>
+			</div>
+		{% if required_num %}
+			<div class="required-notice" role="note">{{ txt_required_notice }}</div>
+		{% endif %}
+			<div id="sections" class="section-grid">
+			<script>
+				var array = [];
+			</script>
+			{% for key, region in region_sections if region['sections'] is not empty %}
+				<section id="region-{{ key }}" class="sg-region f-row deactive">
+				{% if region['group_name'] is not empty %}
+					<h2 class="region-title f-col-12">{{ region['group_name'] }}</h2>
+				{% endif %}
+
+
+
+				{% for section in region['sections'] %}
+					{% set sct_id		= section['id'] %}
+					{% set init_state	= section['init_state'] %}
+					{% set product		= (added_products[sct_id] is defined)? added_products[sct_id] : null %}
+					{% set sct_cnd_hint	= (sct_cnd_hints[sct_id] is defined)? sct_cnd_hints[sct_id] : null %}
+					{% set sct_class	= (init_state is not same as(1))? ' state-blocked' : '' %}
+					{% set sct_class	= sct_class ~ ((section['required'])? ' required' : '') %}
+					{% set sct_class	= sct_class ~ ((section['progress'])? ' in-progress' : '') %}
+					{% set sct_class	= sct_class ~ ((sct_cnd_hint)? ' hint-exists' : '') %}
+                    {% set id_main_section		= section['id_main_section'] %}
+					{% set id_dop_sections		= section['id_dop_sections'] %}
+
+					{% if (loop.index0 + 1) < region['sections']|length %}
+				        {% set next = region[loop.index0 + 1] %}
+				    {% endif %}
+
+					<div class="section-box {{ box_classes }} {% if section['hide'] == '0' and not product %}deactive{% endif %}" {% if section['hide'] == '0' %}id="dop-section-{{ sct_id }}"{% endif %}>
+                    {% if section['hide'] == '1' and id_dop_sections != '0' %}
+                    <script>
+						var iddopsections = '{{ id_dop_sections }}';
+						array[{{ sct_id }}] = iddopsections.split(',');
+					</script>
+                    {% endif %}
+
+
+					{% set last = item %}
+
+					{% if grid_type == 'cell' and not product %}
+
+						<article id="section-{{ sct_id }}" data-sct-id="{{ sct_id }}" class="section{{ sct_class }}">
+						{% if init_state == 0 %}
+							<div class="sct-mark f-row align-center justify-center">
+								<svg class="cfg-icon"><use xlink:href="#i-svg-lock" /></svg>
+							</div>
+						{% endif %}
+							<div class="sct-img f-row align-center justify-center">
+								<img src="{{ section['img_tumb'] }}" alt="{{ section['name'] }}" class="thumb-img img-fluid">
+							</div>
+							<h3 class="sct-name">{{ section['name'] }}</h3>
+							<div class="sct-desc">
+								<p>{{ section['description'] }}</p>
+							</div>
+							<div class="sct-control f-row">
+							{% if init_state == 0 and sct_cnd_hint %}
+								<button class="f-col bttn help-bttn"><svg class="cfg-icon"><use xlink:href="#i-svg-info-crl-ol" /></svg> {{ txt_info_btn }}</button>
+							{% else %}
+								<button class="f-col bttn add-bttn" {{ (init_state != 1)? 'disabled' : '' }}><svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg> {{ txt_add_btn }}</button>
+							{% endif %}
+							{% if section['hide'] == '0' %}
+								<button class="bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-{{ sct_id }}').style.display='none');array[{{ id_main_section }}].push('{{ sct_id }}'); array[{{ id_main_section }}].sort;">
+									<svg class="cfg-icon"><use xlink:href="#i-svg-minus" /></svg>
+								</button>
+							{% else %}
+								<button class="bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-' + array[{{ sct_id }}][0]).style.display='block'); array[{{ sct_id }}].shift();">
+									<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg>
+								</button>
+							{% endif %}
+							</div>
+						</article>
+
+					{% elseif grid_type == 'cell' and product %}
+
+						<article id="section-{{ sct_id }}" data-sct-id="{{ sct_id }}" class="section added-product{{ sct_class }}">
+							<div class="sct-mark f-row align-center justify-center">
+								<svg class="cfg-icon"><use xlink:href="#i-svg-check" /></svg>
+							</div>
+							<div class="sct-img f-row align-center justify-center">
+								<img src="{{ product['thumbnail'] }}" alt="{{ section['name'] }}" class="thumb-img img-fluid">
+							</div>
+							<h3 class="sct-name">{{ section['name'] }}</h3>
+							<div class="prod-info">
+								<div class="prod-name">{{ product['name'] }}</div>
+								<div class="prod-total">
+									<div class="cost-info">{{ product['chosen_qty'] ~ txt_qty_unit ~ ' ' ~ txt_for ~ ' ' ~ product['total_cost_format'] }}</div>
+								</div>
+								<div class="prod-control f-row nowrap align-center justify-center">
+									{% if section['qty_choice'] %}
+										<button class="bttn qty-down-bttn"><svg class="cfg-icon"><use xlink:href="#i-svg-minus" /></svg></button>
+										{% if product['options'] %}
+										<button class="bttn opt-show-bttn">{{ txt_opt_show }}</button>
+										{% endif %}
+										<button class="bttn qty-up-bttn"><svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg></button>
+									{% else %}
+										{% if product['options'] %}
+										<button class="bttn opt-show-bttn">{{ txt_opt_show }}</button>
+										{% endif %}
+									{% endif %}
+								</div>
+							</div>
+							<div class="sct-control f-row">
+								<button class="f-col bttn change-bttn" {{ (init_state != 1)? 'disabled' : '' }}><svg class="cfg-icon"><use xlink:href="#i-svg-change" /></svg> {{ txt_change_btn }}</button>
+								<button class="f-col bttn remove-bttn" {{ (init_state != 1)? 'disabled' : '' }}><svg class="cfg-icon"><use xlink:href="#i-svg-close" /></svg> {{ txt_remove_btn }}</button>
+								{% if section['hide'] == '0' %}
+
+								{% else %}
+									<button class="f-col bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-' + array[{{ sct_id }}][0]).style.display='block'); array[{{ sct_id }}].shift();">
+										<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg>
+									</button>
+								{% endif %}
+							</div>
+						</article>
+
+					{% elseif grid_type == 'list' and not product %}
+
+						<article id="section-{{ sct_id }}" data-sct-id="{{ sct_id }}" class="section{{ sct_class }} f-row align-center justify-center">
+							<div class="sct-mark f-row align-center justify-center">
+							{% if init_state == 0 %}
+								<svg class="cfg-icon"><use xlink:href="#i-svg-lock" /></svg>
+							{% else %}
+								<svg class="cfg-icon"><use xlink:href="#i-svg-arrow-r" /></svg>
+							{% endif %}
+							</div>
+							<h3 class="sct-name f-col-3 sm-12">{{ section['name'] }}</h3>
+							<div class="sct-img f-col-auto f-row align-center justify-center">
+								<img src="{{ section['img_tumb'] }}" alt="{{ section['name'] }}" class="thumb-img img-fluid">
+							</div>
+							<div class="sct-desc f-col xs-12">
+								<p>{{ section['description'] }}</p>
+							</div>
+							<div class="sct-control f-col-auto xs">
+							{% if init_state == 0 and sct_cnd_hint %}
+								<button class="bttn help-bttn">
+									<svg class="cfg-icon"><use xlink:href="#i-svg-info-crl-ol" /></svg>
+								</button>
+							{% else %}
+								<button class="bttn add-bttn" {{ (init_state != 1)? 'disabled' : '' }}>
+									<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg>
+								</button>
+							{% endif %}
+							{% if section['hide'] == '0' %}
+								<button class="bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-{{ sct_id }}').style.display='none');array[{{ id_main_section }}].push('{{ sct_id }}'); array[{{ id_main_section }}].sort;">
+									<svg class="cfg-icon"><use xlink:href="#i-svg-minus" /></svg>
+								</button>
+							{% else %}
+								<button class="bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-' + array[{{ sct_id }}][0]).style.display='block'); array[{{ sct_id }}].shift();">
+									<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg>
+								</button>
+							{% endif %}
+							</div>
+						</article>
+
+					{% elseif grid_type == 'list' and product %}
+
+						<article id="section-{{ sct_id }}" data-sct-id="{{ sct_id }}" class="section added-product{{ sct_class }} f-row align-center justify-center">
+							<div class="sct-mark f-row align-center justify-center">
+								<svg class="cfg-icon"><use xlink:href="#i-svg-check" /></svg>
+							</div>
+							<h3 class="sct-name f-col-3 sm-12">{{ section['name'] }}</h3>
+							<div class="sct-img f-col-auto f-row align-center justify-center">
+								<img src="{{ product['thumbnail'] }}" alt="{{ product['name'] }}" class="thumb-img img-fluid">
+							</div>
+							<div class="prod-info f-col xs-12 f-row align-center justify-center">
+								<div class="prod-name f-col-12">{{ product['name'] }}</div>
+								<div class="prod-total f-col-auto f-row nowrap align-center">
+								{% if section['qty_choice'] %}
+									<button class="bttn qty-down-bttn"><svg class="cfg-icon"><use xlink:href="#i-svg-chev-down" /></svg></button>
+									<div class="cost-info">{{ product['chosen_qty'] ~ txt_qty_unit ~ ' ' ~ txt_for ~ ' ' ~ product['total_cost_format'] }}</div>
+									<button class="bttn qty-up-bttn"><svg class="cfg-icon"><use xlink:href="#i-svg-chev-up" /></svg></button>
+								{% else %}
+									<div class="cost-info">{{ product['chosen_qty'] ~ txt_qty_unit ~ ' ' ~ txt_for ~ ' ' ~ product['total_cost_format'] }}</div>
+								{% endif %}
+								</div>
+							</div>
+							<div class="sct-control f-col-auto xs">
+								{% if product['options'] %}
+								<button class="bttn opt-show-bttn">{{ txt_opt_show }}</button>
+								{% endif %}
+								<button class="bttn change-bttn" {{ (init_state != 1)? 'disabled' : '' }}>
+									<svg class="cfg-icon"><use xlink:href="#i-svg-change" /></svg>
+								</button>
+								<button class="bttn remove-bttn" {{ (init_state != 1)? 'disabled' : '' }}>
+									<svg class="cfg-icon"><use xlink:href="#i-svg-close" /></svg>
+								</button>
+								{% if section['hide'] == '0' %}
+
+								{% else %}
+									<button class="bttn" style="background: rgb(192, 23, 13);" onclick="(document.getElementById('dop-section-' + array[{{ sct_id }}][0]).style.display='block'); array[{{ sct_id }}].shift();">
+										<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg>
+									</button>
+								{% endif %}
+							</div>
+						</article>
+
+					{% endif %}
+					</div>
+
+				{% endfor %}
+				</section>
+			{% endfor %}
+			</div>
+
+			<div id="cfg-reviews">
+			{% if preset and rvw_status %}
+				<div class="preset-rating f-row align-center">
+					<div class="f-col-4 md-6">
+						<div class="average-rate f-row align-center justify-center">
+							<div class="ar-info">
+								<div class="ar-value">{{ preset['average_rate'] }}</div>
+								<div class="ar-vote-count">{{ txt_pr_vote }}<br>{{ preset['reviews_num'] }}</div>
+							</div>
+							<svg class="radial-progress" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35">
+								<circle cx="50%" cy="50%" r="15.9155" class="rail" />
+								<circle cx="50%" cy="50%" r="15.9155" stroke-dashoffset="{{ (100 - preset['average_rate'] / 0.05)|number_format }}" class="level" />
+							</svg>
+						</div>
+					</div>
+					<div class="f-col-4 md-6">
+						<table class="rating-details">
+						{% for n, rate_num in preset['rating_details'] %}
+							<tr class="rd-rate">
+								<td class="col-val">{{ 5 - n }} <span class="r-star">&#9733;</span></td>
+								<td class="col-progress">
+									<div class="line-progress">
+										{% set rate_progress = (preset['reviews_num'])? (rate_num / (preset['reviews_num'] * 0.01))|round(1, 'floor') : 0 %}
+										<div class="level" role="progressbar" aria-valuenow="{{ rate_progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ rate_progress }}%;"></div>
+									</div>
+								</td>
+								<td class="col-rate-num">{{ rate_num }}</td>
+							</tr>
+						{% endfor %}
+						</table>
+					</div>
+					<div class="f-col-4 md-12">
+						<div class="offer-review f-row align-center justify-center">
+						{% if user %}
+							<div class="or-user-info">{{ txt_pr_user_info }}</div>
+							<button type="button" onclick="$('#form-review-m-post').slideToggle()" class="bttn bttn-offer-review">{{ txt_rvw_form }}</button>
+						{% else %}
+							<div class="or-guest-info">{{ txt_pr_guest_info }}</div>
+						{% endif %}
+						</div>
+					</div>
+				</div>
+				{% if user %}
+				<div class="review-form">
+					<form id="form-review-m-post" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="rvw_l_code" value="{{ preset['link_md5'] }}"/>
+						<div class="f-row justify-center">
+							<div class="f-col-6 sm-12">
+								<label for="rvw-autor" class="rvw-label">{{ txt_rvw_autor }}</label>
+								<input id="rvw-autor" type="text" class="cfg-input" name="rvw_autor" placeholder="{{ txt_rvw_ph_name }}" value="{{ user['first_name'] }}"/>
+							</div>
+							<div class="f-col-6 sm-12">
+								<label for="rvw-email" class="rvw-label">{{ txt_rvw_email }}</label>
+							{% if user['email'] matches '/.+@.+\..+/i' %}
+								<input id="rvw-email" type="email" class="cfg-input" readonly name="rvw_email" placeholder="{{ txt_rvw_ph_email }}" value="{{ user['email'] }}"/>
+							{% else %}
+								<input id="rvw-email" type="email" class="cfg-input" name="rvw_email" placeholder="{{ txt_rvw_ph_email }}" value=""/>
+							{% endif %}
+							</div>
+							<div class="f-col-6 sm-12">
+								<label for="rvw-rating" class="rvw-label">{{ txt_rvw_rating }}</label>
+								<select id="rvw-rating" name="rvw_rating" class="cfg-input">
+									<option value="5">5</option>
+									<option value="4">4</option>
+									<option value="3">3</option>
+									<option value="2">2</option>
+									<option value="1">1</option>
+								</select>
+							</div>
+							<div class="f-col-6 sm-12">
+								<label for="rvw-recommend" class="rvw-label">{{ txt_rvw_recommend }}</label>
+								<select id="rvw-recommend" name="rvw_recommend" class="cfg-input">
+									<option value="1">{{ txt_yes }}</option>
+									<option value="0">{{ txt_no }}</option>
+								</select>
+							</div>
+							<div class="f-col-12">
+								<label for="rvw-positive" class="rvw-label">{{ txt_rvw_positive }}</label>
+								<input id="rvw-positive" type="text" class="cfg-input" name="rvw_positive" value="" placeholder="{{ txt_rvw_ph_positive }}"/>
+							</div>
+							<div class="f-col-12">
+								<label for="rvw-negative" class="rvw-label">{{ txt_rvw_negative }}</label>
+								<input id="rvw-negative" type="text" class="cfg-input" name="rvw_negative" value="" placeholder="{{ txt_rvw_ph_negative }}"/>
+							</div>
+							<div class="f-col-12">
+								<label for="rvw-review" class="rvw-label">{{ txt_rvw_review }}</label>
+								<textarea id="rvw-review" rows="5" class="cfg-input" name="rvw_review"></textarea>
+							</div>
+							<div class="f-col-12">
+								<button type="submit" form="form-review-m-post" class="bttn bttn-submit">{{ txt_rvw_send }}</button>
+							</div>
+						</div>
+					</form>
+					<div class="cfg-preloader rvw-load">
+						<div class="spinner">
+							<div class="rect1"></div>
+							<div class="rect2"></div>
+							<div class="rect3"></div>
+							<div class="rect4"></div>
+							<div class="rect5"></div>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+
+				<section class="preset-reviews">
+					<h2 class="reviews-title f-col-12">{{ txt_rvw_title }}</h2>
+					{% if preset['reviews'] %}
+					<div id="preset-review-list">
+						{% set user_id = (user)? user['id'] : null %}
+
+						{% for review in preset['reviews'] %}
+						<div class="pr-item">
+							<div class="pr-header f-row align-center justify-end {{ (user_id == review['customer_id'])? 'by-user' : '' }}">
+								<div class="autor f-col xs-12">{{ treview['autor'] }}</div>
+								{% if review['recommend'] %}
+								<div class="recommend-y f-col-auto xs-6">{{ txt_rvw_recommend_y }}</div>
+								{% else %}
+								<div class="recommend-n f-col-auto xs-6">{{ txt_rvw_recommend_n }}</div>
+								{% endif %}
+								<div class="rating f-col-auto xs-6">
+								{% for i in 1..5 %}
+									{{ (i <= review['rating'])? '<span class="r-star">&#9733;</span>' : '<span class="r-star void">&#9733;</span>' }}
+								{% endfor %}
+								</div>
+							</div>
+							<div class="positive">
+								<div class="pr-title">{{ txt_rvw_positive }}</div>
+								{{ review['positive'] }}
+							</div>
+							<div class="negative">
+								<div class="pr-title">{{ txt_rvw_negative }}</div>
+								{{ review['negative'] }}
+							</div>
+							<div class="review">
+								<div class="pr-title">{{ txt_rvw_review }}</div>
+								{{ review['review'] }}
+							</div>
+							<div class="pr-footer f-row align-center justify-between">
+								<div class="date f-col-auto xs-12"><time datetime="{{ review['date_added'] }}">{{ review['date_added_format'] }}</time></div>
+								<div class="review-rate f-col-auto xs-12 f-row nowrap align-center justify-center" data-review-id="{{ review['id'] }}">
+									<span class="rr-title">{{ txt_rvw_rate_title }} </span>
+								{% if review['voted'] is not same as(false) %}
+									{% if review['voted'] %}
+										{% set likes_class = 'chosen' %}
+										{% set dislikes_class = '' %}
+									{% else %}
+										{% set likes_class = '' %}
+										{% set dislikes_class = 'chosen' %}
+									{% endif %}
+									<button class="bttn bttn-likes disabled {{ likes_class }}" disabled><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-up" /></svg> <span class="vote-count">{{ review['likes'] }}</span></button>
+									<button class="bttn bttn-dislikes disabled {{ dislikes_class }}" disabled><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-down" /></svg> <span class="vote-count">{{ review['dislikes'] }}</span></button>
+								{% else %}
+									<button class="bttn bttn-likes"><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-up" /></svg> <span class="vote-count">{{ review['likes'] }}</span></button>
+									<button class="bttn bttn-dislikes"><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-down" /></svg> <span class="vote-count">{{ review['dislikes'] }}</span></button>
+								{% endif %}
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+						{% if preset['reviews_num'] > preset['reviews']|length %}
+						<div class="pr-list-loader">
+							<button id="show-all-reviews" class="bttn bttn-load-list">{{ txt_rvw_show_all }} ({{ preset['reviews_num'] }})</button>
+						</div>
+						{% endif %}
+					</div>
+					{% else %}
+						<div class="msg-reviews-not-found">{{ txt_rvw_none }}</div>
+					{% endif %}
+				</section>
+			{% endif %}
+			</div>
+
+			{% if content_bottom %}
+			<aside class="content-bottom">{{ content_bottom }}</aside>
+			{% endif %}
+		</article>
+		{{ column_right }}
+	</main>
+</div>
+{{ footer }}
+
+<script type="text/javascript" id="cfg-dinamic-data">
+	var cfgAddedProdData	= {{ (added_products)? added_products|json_encode() : '{}' }};
+	var cfgCndHints			= {{ (sct_cnd_hints)? sct_cnd_hints|json_encode() : '{}' }};
+	var cfgBuildLvl			= {{ build_level }};
+	var cfgTotalCost		= {{ total_cost }};
+	var cfgIsPresetPage		= {{ (preset)? 'true' : 'false' }};
+	var cfgMetaTitle		= '{{ meta_title }}';
+</script>
+
+<script type="text/javascript" >
+
+let params = new URLSearchParams(document.location.search);
+let region = params.get('region');
+
+if(region){	hideAllBlock();
+	document.getElementById(region).style.display = 'block';
+	document.getElementById('region').style.display = 'none';
+	document.getElementById('conf-panel').style.display = 'block';
+}
+
+
+function hideAllBlock() {
+	{% for key, region in region_sections if region['sections'] is not empty %}
+		document.getElementById("region-{{ key }}").style.display = 'none';
+	{% endfor %}
+}
+function Selected(a) {
+	hideAllBlock();
+	document.getElementById(a.value).style.display = 'block';
+	document.getElementById('region').style.display = 'none';
+	document.getElementById('conf-panel').style.display = 'block';
+	region = a.value;
+ 	parameter = '&region=' + region;
+  	window.location.href += parameter;
+}
+
+
+</script>
+
+{% if not ajax_upd %}
+<script type="text/javascript">
+var cfg = {
+	init: function() {
+		cfg.$title				= $('title');
+		cfg.$totalCost			= $('#total-cost');
+		cfg.$mainTitle			= $('#main-title');
+		cfg.$mainDesc			= $('#main-desc');
+		cfg.$sections			= $('#sections');
+		cfg.$reviews			= $('#cfg-reviews');
+
+		cfg.$preloader			= cfg.initPreloader();
+		cfg.$popupDialog		= cfg.initPopupDialog();
+
+		cfg.$prodSelector 		= cfg.initProductSelector();
+		cfg.$barTitle			= cfg.$prodSelector.find('#ps-bar-title');
+		cfg.$barCategory		= cfg.$prodSelector.find('#ps-bar-category');
+		cfg.$barFilter			= cfg.$prodSelector.find('#ps-bar-filter');
+		cfg.$barSorting			= cfg.$prodSelector.find('#ps-bar-sorting');
+		cfg.$prodList			= cfg.$prodSelector.find('#ps-prod-list');
+
+		cfg.$progressLvl		= $('#cfg-progress').find('.level');
+		cfg.$progressLblVal		= $('#cfg-progress').find('.label-value');
+		cfg.progressNum			= {{ progress_num }};
+		cfg.progressMin			= {{ progress_min }};
+
+		cfg.configQtyLoad		= {{ prod_load }};
+		cfg.targetQtyLoad		= cfg.configQtyLoad;
+
+		cfg.currProdArr			= [];
+		cfg.currProdOptObj		= {};
+
+		cfg.sectionsData		= {{ sct_data_json }};
+		cfg.updateDinamicData();
+
+		//binding
+
+		$(window).on({
+			popstate: function() {
+				cfg.loadPage(window.history.state, false);
+			}
+		});
+
+
+
+		$('#cfg-to-cart').on('click', cfg.addToCart);
+		$('#cfg-save').on('click', cfg.showConfigurationSave);
+		$('#cfg-table').on('click', cfg.showConfigurationTable);
+		$('#cfg-print').on('click', cfg.printConfiguration);
+		$('#cfg-clear').on('click', cfg.clearAllSections);
+
+		cfg.$sections.on('click', 'button.bttn, .sct-img', function() {
+			var $trgEl = $(this);
+			var $currSct = $trgEl.parents('.section');
+			var sctId = parseInt($currSct.data('sct-id'));
+
+			if($trgEl.hasClass('add-bttn') || $trgEl.hasClass('change-bttn')) {
+				cfg.penelAddProduct(sctId);
+
+			}else if($trgEl.hasClass('remove-bttn')) {
+				cfg.clearSection(sctId);
+
+			}else if($trgEl.hasClass('help-bttn')) {
+				cfg.showHint(sctId);
+
+			}else if($trgEl.hasClass('qty-up-bttn')) {
+				cfg.changeAddedProdQty(sctId, true);
+
+			}else if($trgEl.hasClass('qty-down-bttn')) {
+				cfg.changeAddedProdQty(sctId, false);
+
+			}else if($trgEl.hasClass('opt-show-bttn')) {
+				cfg.showSelectedOptions(sctId);
+
+			}else if($trgEl.hasClass('sct-img')) {
+				if(!$currSct.hasClass('state-blocked')) {
+					cfg.penelAddProduct(sctId);
+				}else if($currSct.hasClass('hint-exists')) {
+					cfg.showHint(sctId);
+				}
+			}
+		});
+
+		{% if another_img %}cfg.bindProdImgSliding();{% endif %}
+		{% if rvw_status %}cfg.bindReviewHandlers();{% endif %}
+	},
+
+	updateDinamicData: function() {
+		cfg.metaTitle		= cfgMetaTitle;
+		cfg.isPresetPage	= cfgIsPresetPage;
+		cfg.addedProdData	= cfgAddedProdData;
+		cfg.cndHints		= cfgCndHints;
+		cfg.buildLvl		= cfgBuildLvl;
+		cfg.totalCost		= cfgTotalCost;
+		cfg.URLParams		= {};
+
+		$.each(cfgAddedProdData, function(sctId, prod) {
+			cfg.URLParams[sctId] = prod.url_params;
+		});
+
+		if(region){			hideAllBlock();
+			document.getElementById(region).style.display = 'block';
+		}
+	},
+
+	initPreloader: function() {
+		for(var i = 1, rect = ''; i <= 5; i++) rect += '<div class="rect'+i+'"></div>';
+		return $('<div class="cfg-preloader"><div class="spinner">'+rect+'</div></div>');
+	},
+
+	initPopupDialog: function() {
+		var checkoutRoute = '{{ checkout_url }}';
+		var $popupDialog = $(
+			'<div id="popup-dialog" class="cfg-modal f-row nowrap column align-center justify-center" role="dialog">'+
+				'<div class="mdl-container f-col-auto shrink">'+
+					'<div class="mdl-window f-row nowrap column">'+
+						'<div class="pd-header f-col-auto"></div>'+
+						'<div class="pd-content-wrap f-col-auto shrink">'+
+							'<div class="pd-content"></div>'+
+						'</div>'+
+						'<div class="pd-control f-col-auto f-row">'+
+							'<div class="bttn-wrap bw-close f-col">'+
+								'<button class="bttn" data-dismiss="modal" aria-label="Close">{{ txt_contn_btn }}</button>'+
+							'</div>'+
+							'<div class="bttn-wrap bw-place-order f-col">'+
+								'<button class="bttn" onclick="location=\''+checkoutRoute+'\'">{{ txt_to_order_btn }}</button>'+
+							'</div>'+
+						'</div>'+
+					'</div>'+
+				'</div>'+
+			'</div>'
+		);
+
+		$popupDialog.setTitle = function(str) {
+			this.find('.pd-header').html(str);
+		};
+
+		$popupDialog.setContent = function(str) {
+			this.find('.pd-content').html(str);
+		};
+
+		$popupDialog.setBttn = function(close, order) {
+			(close)? this.find('.bw-close').show() : this.find('.bw-close').hide();
+			(order)? this.find('.bw-place-order').show() : this.find('.bw-place-order').hide();
+		};
+
+		$popupDialog.modifyClass = '';
+
+		$popupDialog.modalShow = function(modifyClass) {
+			var scrollWidth = window.innerWidth - $(document).width();
+
+			this.modifyClass = (modifyClass)? modifyClass : '';
+			this.addClass('m-show '+ this.modifyClass);
+			if(scrollWidth) {
+				$(document.body).css({
+					'overflow': 'hidden',
+					'border-right': scrollWidth+'px solid #f5f5f5'
+				});
+			}
+		};
+
+		$popupDialog.modalHide = function() {
+			var el = this;
+
+			el.removeClass('m-show').addClass('m-hide');
+			setTimeout(function() {
+				el.removeClass('m-hide ' + $popupDialog.modifyClass);
+				el.setTitle('');
+				el.setContent('');
+				el.setBttn();
+				$(document.body).css({'overflow': '', 'border-right': ''});
+			}, 200);
+		};
+
+		$popupDialog.on('click', function(e) {
+			if($(this).find('.mdl-window').has(e.target).length === 0){
+				cfg.$popupDialog.modalHide();
+			}
+		}).find('.bw-close > button').on('click', function() {
+			cfg.$popupDialog.modalHide();
+		});
+
+		$(document.body).append($popupDialog);
+
+		return $popupDialog;
+	},
+
+	showHint: function(sctId) {
+		if(typeof cfg.cndHints[sctId] !== 'undefined' && Object.keys(cfg.cndHints[sctId]).length != 0) {
+			var hintObj = cfg.cndHints[sctId];
+			var hintTitle = '{{ txt_cnd_hint_title }}'.replace('%s', cfg.sectionsData[sctId].name);
+			var hintText = Object.keys(hintObj).map(function(key, i) {
+				return hintObj[key];
+			}).join('</div><hr class="cnd-hint-sep"><div class="cnd-hint">');
+
+			cfg.$popupDialog.setTitle('<svg class="cfg-icon"><use xlink:href="#i-svg-info-crl" /></svg> '+ hintTitle);
+			cfg.$popupDialog.setContent('<div class="cnd-hint">'+hintText+'</div>');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+		}
+	},
+
+	initProductSelector: function() {
+		var $prodSelector = $(
+			'<div id="product-selector" class="cfg-modal f-row nowrap column align-center justify-start" role="dialog">'+
+				'<div class="mdl-container f-col-auto shrink">'+
+					'<div class="mdl-window f-row nowrap column">'+
+						'<div class="action-bar f-col-auto" role="toolbar">'+
+							'<div class="ab-header">'+
+								'<div id="ps-bar-title" class="title">{{ txt_srch_in_all }}</div>'+
+								'<button type="button" class="bttn bttn-close" aria-label="Close">&#10006;</button>'+
+							'</div>	'+
+							'<div class="ab-filters f-row">'+
+								'<div class="input-wrap f-col-4">'+
+									'<select id="ps-bar-category">'+
+										'<option selected value="0">{{ txt_sort_all_ctgrs }}</option>'+
+									'</select>'+
+								'</div>'+
+								'<div class="input-wrap f-col-4">'+
+									'<input id="ps-bar-filter" placeholder="{{ txt_search }}" type="text"/>'+
+								'</div>'+
+								'<div class="input-wrap f-col-4">'+
+									'<select id="ps-bar-sorting">'+
+										'<option value="default">{{ txt_sort_default }}</option>'+
+										'<option value="name_asc">{{ txt_sort_n_down }}</option>'+
+										'<option value="name_desc">{{ txt_sort_n_up }}</option>'+
+										'<option value="price_asc">{{ txt_sort_p_up }}</option>'+
+										'<option value="price_desc">{{ txt_sort_p_down }}</option>'+
+									'</select>'+
+								'</div>'+
+							'</div>'+
+						'</div>'+
+						'<div class="list-container f-col-auto shrink">'+
+							'<div id="ps-prod-list" data-section-id="">'+
+								'<div class="product-row msg pls_wait"><span>{{ txt_pls_wait }}</span></div>'+
+							'</div>'+
+						'</div>'+
+					'</div>	'+
+				'</div>	'+
+			'</div>'
+		);
+
+		$prodSelector.modalShow = function() {
+			var scrollWidth = window.innerWidth - $(document).width();
+
+			this.addClass('m-show');
+			if(scrollWidth) {
+				$(document.body).css({
+					'overflow': 'hidden',
+					'border-right': scrollWidth+'px solid #f5f5f5'
+				});
+			}
+		};
+
+		$prodSelector.modalHide = function() {
+			var el = this;
+
+			el.removeClass('m-show').addClass('m-hide');
+			setTimeout(function() {
+				el.removeClass('m-hide');
+				localStorage.setItem('sorting_bar', cfg.$barSorting.val());
+				$(document.body).css({'overflow': '', 'border-right': ''});
+			}, 200);
+		};
+
+		$prodSelector.on('click', function(e) {
+			if(!$(this).find('.mdl-window').has(e.target).length){
+				cfg.$prodSelector.modalHide();
+			}
+		}).find('.bttn-close').on('click', function() {
+			cfg.$prodSelector.modalHide();
+		});
+
+		$prodSelector.on('change', '.cfg-inp-radio > input', function() {
+			$(this).parents('.cfg-inp-group').find('.cfg-inp-radio > input').each(function() {
+				var $input = $(this);
+
+				($input.is(':checked'))? $input.parent().addClass('checked') : $input.parent().removeClass('checked');
+			});
+			console.log('asdasd');
+		});
+
+		$prodSelector.on('change', '.cfg-inp-checkbox > input', function() {
+			var $input = $(this);
+
+			($input.is(':checked'))? $input.parent().addClass('checked') : $input.parent().removeClass('checked');
+		});
+
+		$prodSelector.on('input', '.qty-input', function() {
+			var $input = $(this);
+			var min = parseInt($input.attr('min'));
+			var max = parseInt($input.attr('max'));
+
+			$input.val().replace(/[^0-9]/, '');
+
+			if(min > parseInt($input.val())) $input.val(min);
+			if(max < parseInt($input.val())) $input.val(max);
+		});
+
+		$prodSelector.on('keydown', '.options .time', function() {
+			var $input = $(this);
+			var prevVal = $input.val();
+			var pattern = /^(([0,1][0-9])|(2[0-3])):[0-5][0-9]$/;
+
+			$input.one('input', function() {
+				var val = $input.val();
+				var mask = '00:00';
+				var sample = val + mask.substring(val.length, mask.length);
+
+				if(!pattern.test(sample)) {
+					sample = prevVal + mask.substring(prevVal.length, mask.length);
+					$input.val(pattern.test(sample)? prevVal : '');
+				}else{
+					if(prevVal.length == 1 && val.length == 2) {
+						$input.val($input.val()+':');
+					}
+				}
+			});
+		});
+
+		$prodSelector.on('keydown', '.options .date', function() {
+			var $input = $(this);
+			var prevVal = $input.val();
+			var pattern = /^(19|20)\d\d-((0[1-9]|1[012])-(0[1-9]|[12]\d)|(0[13-9]|1[012])-30|(0[13578]|1[02])-31)$/;
+
+			$input.one('input', function() {
+				var val = $input.val();
+				var mask = '2020-01-01';
+				var sample = val + mask.substring(val.length, mask.length);
+
+				if(!pattern.test(sample)) {
+					sample = prevVal + mask.substring(prevVal.length, mask.length);
+					$input.val(pattern.test(sample)? prevVal : '');
+				}else{
+					if(prevVal.length == 3 && val.length == 4 || prevVal.length == 6 && val.length == 7) {
+						$input.val($input.val()+'-');
+					}
+				}
+			});
+		});
+
+		$prodSelector.on('keydown', '.options .datetime', function() {
+			var $input = $(this);
+			var prevVal = $input.val();
+			var pattern = /^(19|20)\d\d-((0[1-9]|1[012])-(0[1-9]|[12]\d)|(0[13-9]|1[012])-30|(0[13578]|1[02])-31)\s(([0,1][0-9])|(2[0-3])):[0-5][0-9]$/;
+
+			$input.one('input', function() {
+				var val = $input.val();
+				var mask = '2020-01-01 00:00';
+				var sample = val + mask.substring(val.length, mask.length);
+
+				if(!pattern.test(sample)) {
+					sample = prevVal + mask.substring(prevVal.length, mask.length);
+					$input.val(pattern.test(sample)? prevVal : '');
+				}else{
+					if(prevVal.length == 3 && val.length == 4 || prevVal.length == 6 && val.length == 7) {
+						$input.val($input.val()+'-');
+					}
+					if(prevVal.length == 9 && val.length == 10) {
+						$input.val($input.val()+' ');
+					}
+					if(prevVal.length == 12 && val.length == 13) {
+						$input.val($input.val()+':');
+					}
+				}
+			});
+		});
+
+		$prodSelector.find('.list-container').on('scroll', function() {
+			var lastProd = cfg.$prodList.find('.pl-item:last-child');
+			if(lastProd.length) {
+				if(($(this).offset().top + $(this).outerHeight(true) + $(this).outerHeight(true) * 0.5) >= lastProd.offset().top && cfg.$prodList.find('.pl-item').length >= cfg.targetQtyLoad){
+					cfg.targetQtyLoad += cfg.configQtyLoad;
+
+					cfg.productLoader(cfg.$prodList.data('section-id'), 0);
+				}
+			}
+		});
+
+		$(document.body).append($prodSelector);
+
+		return $prodSelector;
+	},
+
+	penelAddProduct: function(sctId) {
+		var incCtgrNum = cfg.sectionsData[sctId].inc_ctgr_num;
+		var incCtgrTree = cfg.sectionsData[sctId].inc_ctgr_tree;
+
+		if(incCtgrNum) {
+			var optionsHTML = (incCtgrNum > 1)? '<option value="0" selected="selected">{{ txt_sort_all_ctgrs }}</option>' : '';
+
+			for(id in incCtgrTree) optionsHTML += '<option value="'+id+'">'+incCtgrTree[id]+'</option>';
+
+			cfg.$barCategory.html(optionsHTML).prop('disabled', false);
+		}else{
+			cfg.$barCategory.html('<option value="0" selected="selected">{{ txt_sort_ctgrs_missing }}</option>').prop('disabled', true);
+		}
+
+		var categoryVal = String(localStorage.getItem('category_bar'+sctId));
+		var sortingVal = String(localStorage.getItem('sorting_bar'));
+
+		cfg.$barCategory.find('option[value="'+categoryVal+'"]').prop('selected', true);
+		cfg.$barSorting.find('option[value="'+sortingVal+'"]').prop('selected', true);
+
+		cfg.$barCategory.on('change', function() {
+			cfg.targetQtyLoad = cfg.configQtyLoad;
+			cfg.productLoader(sctId, 0);
+			localStorage.setItem('category_bar'+sctId, $(this).val());
+		});
+
+		cfg.$barFilter.val('').on('keyup', function() {
+			cfg.productLoader(sctId, 700);
+		});
+
+		cfg.$barSorting.on('change', function() {
+			cfg.targetQtyLoad = cfg.configQtyLoad;
+			cfg.productLoader(sctId, 0);
+		});
+
+		cfg.$prodList.data('section-id', sctId).html('<div class="product-row msg pls_wait"><span>{{ txt_pls_wait }}</span></div>');
+		cfg.targetQtyLoad = cfg.configQtyLoad;
+		cfg.productLoader(sctId, 0);
+		cfg.$prodSelector.modalShow();
+	},
+
+	ajaxRequest: null,
+	ajaxTimer: null,
+	productLoader: function(sctId, delay) {
+		clearTimeout(cfg.ajaxTimer);
+		if(cfg.ajaxRequest) cfg.ajaxRequest.abort();
+
+		var addedProdIdArr = [];
+		var loadStart = 0;
+
+		for(sId in cfg.addedProdData) {
+			addedProdIdArr.push(cfg.addedProdData[sId].product_id);
+		}
+
+		if(cfg.targetQtyLoad != cfg.configQtyLoad) {
+			loadStart = cfg.$prodList.children('.pl-item').length;
+		}
+
+		var params = {
+			'inc_ctgr_id_list':		Object.keys(cfg.sectionsData[sctId].inc_ctgr_tree).join(','),
+			'added_prod_id_list':	addedProdIdArr.join(','),
+			'target_ctgr_id':		cfg.$barCategory.val(),
+			'filter':				cfg.$barFilter.val().substr(0, 155),
+			'sorting':				cfg.$barSorting.val(),
+			'start':				loadStart,
+			'limit':				cfg.configQtyLoad,
+			'qty_choice':			cfg.sectionsData[sctId].qty_choice,
+		};
+
+		cfg.ajaxTimer = setTimeout(function() {
+			cfg.ajaxRequest = $.ajax({
+				url: '{{ ext_route }}/actionListProducts',
+				data: {'params': params},
+				type: 'POST',
+				dataType: 'JSON',
+				beforeSend: function(data) {
+					cfg.$barTitle.html(cfg.$preloader);
+				},
+				success: function(data) {
+					if(!data.length && cfg.$barFilter.val().length) {
+						cfg.$barTitle.html('{{ txt_srch_not_found }}');
+						cfg.$prodList.html('<div class="product-row msg msg-not-found"><span>{{ txt_srch_not_found_a }}</span></div>');
+					}else{
+						if(cfg.targetQtyLoad == cfg.configQtyLoad) {
+							cfg.currProdArr = data;
+						}else{
+							for(key in data) {
+								cfg.currProdArr.push(data[key]);
+							}
+						}
+
+						cfg.insertProductList(sctId, data);
+					}
+				},
+				error: function(error) {
+					if(error.statusText == 'error') {
+						cfg.$barTitle.html('{{ txt_error_load }}');
+						console.log(JSON.stringify(error));
+					}
+				}
+			});
+		}, delay);
+	},
+
+	insertProductList: function(sctId, productsArr) {
+		var addedHere = (!!cfg.addedProdData[sctId])? cfg.addedProdData[sctId] : false;
+		var html = '';
+
+		if(productsArr.length) {
+			for(i in productsArr) {
+				var prod = productsArr[i];
+
+				html += '<div id="product-'+prod.product_id+'" data-prod-id="'+prod.product_id+'" class="pl-item product-row f-row align-center">';
+				html += 	'<div class="prod-img f-col">';
+				html += 		'<img class="thumb-img img-fluid" src="' + prod.thumbnail + '">';
+				html += 	'</div>';
+				html += 	'<div class="prod-info f-col-6 sm-12 align-self-start">';
+				{% if prod_title_a %}
+				html += 		'<h5 class="name"><a href="'+prod.href+'" target="_blank" title="{{ txt_to_p_page }}">' + prod.name + '</a></h5>';
+				{% else %}
+				html += 		'<h5 class="name">' + prod.name + '</h5>';
+				{% endif %}
+				html += 		'<div class="desc">' + prod.description + '</div>';
+
+				if(addedHere.product_id === prod.product_id) {
+					var optHtml = cfg.getShosenOptionsHTML(addedHere.options, 'in-prod-list', '{{ txt_options }}');
+
+					html += (optHtml)? optHtml : '';
+				}
+
+				html += 	'</div>';
+				html += 	'<div class="prod-add f-col">';
+
+				if(prod.special) {
+					html += 	'<div class="price"><span class="price-new">' + cfg.priceFormat(prod.special, true) + '</span> <span class="price-old">' + cfg.priceFormat(prod.price, true) + '</span></div>';
+				}else{
+					html += 	'<div class="price">' + cfg.priceFormat(prod.price, true);
+					if(prod.discount) {
+						for(d_key in prod.discount) {
+							html += '<div class="discount">' + cfg.priceFormat(prod.discount[d_key].d_price, true) + ' {{ txt_from }} ' + prod.discount[d_key].d_count + '{{ txt_qty_unit }}</div>';
+						}
+					}
+					html += 	'</div>';
+				}
+
+				if(addedHere.product_id === prod.product_id) {
+					html += 	'<div class="bttn-wrap">';
+					html += 		'<span class="text-prod-added"><svg class="cfg-icon"><use xlink:href="#i-svg-check"></use></svg> {{ txt_this_added }} (' + addedHere.chosen_qty + '{{ txt_qty_unit }})</span>';
+					html += 	'</div>';
+				}else{
+					if(cfg.sectionsData[sctId].qty_choice) {
+						html += '<div class="qty-wrap f-row">';
+						html += 	'<label class="qty-label f-col">{{ txt_quantity }}</label>';
+						html += 	'<input class="qty-input f-col" min="'+prod.minimum+'" max="'+prod.quantity+'" type="number" value="'+prod.minimum+'" title="'+((prod.minimum > 1)? '{{ txt_p_min_count }} '+prod.minimum+'{{ txt_qty_unit }}' : '')+'">';
+						html += 	'<div class="available f-col-12">{{ txt_instock }} '+prod.quantity+'{{ txt_qty_unit }}</div>';
+						html += '</div>';
+					}else{
+						html += '<div class="qty-wrap no-choice"><input class="qty-input" type="hidden" value="1"></div>';
+					}
+					html += 	'<div class="bttn-wrap">';
+					html += 		'<button class="add-bttn bttn" onclick="cfg.addProductToSection(\''+sctId+'\','+prod.product_id+',true)">';
+					html += 			'<svg class="cfg-icon"><use xlink:href="#i-svg-plus" /></svg> {{ txt_choice_btn }}</button>';
+					html += 		'</button>';
+					html += 	'</div>';
+				}
+
+				html += 	'</div>';
+				html += '</div>';
+			}
+		}
+
+		if(cfg.targetQtyLoad == cfg.configQtyLoad) {
+			cfg.$prodList.html(html);
+			cfg.$prodSelector.find('.list-container').scrollTop(0);
+		}else{
+			cfg.$prodList.append(html);
+		}
+
+		var prodCount = cfg.$prodList.find('.pl-item').length;
+
+		if(prodCount) {
+			var txtRes = ['{{ txt_srch_res_a }}', '{{ txt_srch_res_b }}', '{{ txt_srch_res_c }}'];
+			var n = prodCount % 100;
+			var txtKey = (n >= 11 && n <= 14)? 0 : ((n %= 10) < 5)? ((n > 2)? 2 : n) : 0;
+			var txtPose = txtRes[txtKey];
+
+			if(cfg.$barCategory.val() && cfg.$barCategory.val()) {
+				var categoryName = cfg.$barCategory.find('option:selected').text();
+				var categoryNameArr = categoryName.split('>');
+				categoryName = (categoryNameArr.length)? categoryNameArr[categoryNameArr.length-1].trim() : categoryName;
+				cfg.$barTitle.html('{{ txt_srch_in_cat }} «'+categoryName+'»: '+prodCount+' '+txtPose);
+			}else{
+				cfg.$barTitle.html('{{ txt_srch_in_all }}: '+prodCount+' '+txtPose);
+			}
+		}else{
+			cfg.$barTitle.html(':(');
+			cfg.$prodList.html('<div class="product-row msg msg-empty">{{ txt_srch_empty }}</div>');
+		}
+	},
+
+	addProductToSection: function(sctId, prodId, checkOptions) {
+		$.each(cfg.currProdArr, function(i, prod) {
+			if(prod.product_id != prodId) return true;
+
+			var $productRow = cfg.$prodList.find('#product-' + prodId);
+			var qtyInputVal = $productRow.find('input.qty-input').val();
+
+			if(checkOptions) {
+				if(!$productRow.find('.options').length) {
+					$.ajax({
+						url: '{{ ext_route }}/getProductOptionsRequest',
+						data: {
+							'product_id': prod.product_id,
+							'tax_class_id': prod.tax_class_id
+						},
+						type: 'POST',
+						dataType: 'JSON',
+						beforeSend: function() {
+							cfg.$barTitle.html(cfg.$preloader);
+						},
+						success: function(optionsList) {
+							cfg.currProdOptObj = {};
+							var html = '';
+							$.each(optionsList, function(optId, opt) {
+								cfg.currProdOptObj[optId] = opt;
+
+								if(opt.type == 'radio' || opt.type == 'image') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<div id="input-option'+optId+'">';
+									for(pOptId in opt.product_option_value){
+										var pOptVal = opt.product_option_value[pOptId];
+										var pOptValName = pOptVal.name+((pOptVal.price)? ' ('+pOptVal.price_prefix + cfg.priceFormat(pOptVal.price, false)+')': '');
+
+										html += 	'<label class="cfg-inp-radio">';
+										html += 		'<input type="radio" value="'+pOptId+'" name="option-radio-'+optId+'" data-opt-id="'+optId+'" data-required="'+opt.required+'">';
+										if(pOptVal.image && opt.type == 'image') {
+											html += 	'<img src="'+pOptVal.image+'" class="img-fluid opt-img">';
+										}
+										html += 		pOptValName;
+										html += 	'</label>';
+									}
+									html += 	'</div>';
+									html += '</div>';
+								}else if(opt.type == 'checkbox') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<div id="input-option'+optId+'">';
+									for(pOptId in opt.product_option_value){
+										var pOptVal = opt.product_option_value[pOptId];
+										var pOptValName = pOptVal.name+((pOptVal.price)? ' ('+pOptVal.price_prefix + cfg.priceFormat(pOptVal.price, false)+')': '');
+
+										html += 	'<label class="cfg-inp-checkbox">';
+										html += 		'<input type="checkbox" value="'+pOptId+'" data-opt-id="'+optId+'" data-required="'+opt.required+'">';
+										html += 		pOptValName;
+										html += 	'</label>';
+									}
+									html += 	'</div>';
+									html += '</div>';
+								}else if(opt.type == 'select') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<select id="input-option'+optId+'" class="cfg-input select" data-opt-id="'+optId+'" data-required="'+opt.required+'">';
+									html += 		'<option value="">{{ txt_opt_select }}</option>';
+									for(pOptId in opt.product_option_value){
+										var pOptVal = opt.product_option_value[pOptId];
+										var pOptValName = pOptVal.name+((pOptVal.price)? ' ('+pOptVal.price_prefix + cfg.priceFormat(pOptVal.price, false)+')': '');
+
+										html += 	'<option value="'+pOptId+'">'+pOptValName+'</option>';
+									}
+									html += 	'</select>';
+									html += '</div>';
+								}else if(opt.type == 'text') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<input type="text" value="'+opt.value+'" placeholder="'+opt.name+'" id="input-option'+optId+'" class="cfg-input text" data-opt-id="'+optId+'" data-required="'+opt.required+'"/>';
+									html += '</div>';
+								}else if(opt.type == 'textarea') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<textarea rows="3" placeholder="'+opt.name+'" id="input-option'+optId+'" class="cfg-input textarea" data-opt-id="'+optId+'" data-required="'+opt.required+'">'+opt.value+'</textarea>';
+									html += '</div>';
+								}else if(opt.type == 'date') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<input type="text" value="'+opt.value+'" placeholder="{{ txt_opt_f_date }}" id="input-option'+optId+'" class="cfg-input date" data-opt-id="'+optId+'" data-required="'+opt.required+'"/>';
+									html += '</div>';
+								}else if(opt.type == 'time') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<input type="text" value="'+opt.value+'" placeholder="{{ txt_opt_f_time }}" id="input-option'+optId+'" class="cfg-input time" data-opt-id="'+optId+'" data-required="'+opt.required+'"/>';
+									html += '</div>';
+								}else if(opt.type == 'datetime') {
+									html += '<div class="cfg-inp-group">';
+									html += 	'<label class="cfg-label">'+opt.name+((parseInt(opt.required))? '<span class="asterisk"> &#42; </span>' : '')+'</label>';
+									html += 	'<input type="text" value="'+opt.value+'" placeholder="{{ txt_opt_f_datetime }}" id="input-option'+optId+'" class="cfg-input datetime" data-opt-id="'+optId+'" data-required="'+opt.required+'"/>';
+									html += '</div>';
+								}
+							});
+
+							if(html) {
+								$productRow.find('.desc').after('<div class="options"><h4>{{ txt_options }}</h4><div class="opt-note">(<span class="asterisk"> &#42; </span> - {{ txt_opt_required }})</div>' + html + '</div>');
+								cfg.$barTitle.html('{{ txt_opt_exists }}');
+							}else{
+								cfg.addProductToSection(sctId, prodId);
+							}
+						},
+						error: function(error) {
+							console.log(JSON.stringify(error));
+						}
+					});
+					return false;
+				}else{
+					var optErrors = false;
+					var checkboxArr = {};
+					var n = 0;
+
+					$productRow.find('.options').find('input, select, textarea').each(function() {
+						var $optInput = $(this);
+						var optId = $optInput.data('opt-id');
+						var optVal = $optInput.val();
+
+						if(this.type == 'radio') {
+							if($optInput.is(':checked')) cfg.currProdOptObj[optId].value = optVal;
+							if($optInput.data('required') && !$optInput.parents('#input-option'+optId).find('input:checked').length) {
+								$optInput.parent('.cfg-inp-radio').addClass('error');
+								optErrors = true;
+								return true;
+							}else{
+								$optInput.parents('.cfg-inp-group').find('.cfg-inp-radio').removeClass('error');
+							}
+						}
+
+						if(this.type == 'checkbox') {
+							if($optInput.is(':checked')) {
+								checkboxArr[n++] = optVal;
+								cfg.currProdOptObj[optId].value = checkboxArr;
+							}
+							if($optInput.data('required') && !$optInput.parents('#input-option'+optId).find('input:checked').length) {
+								$optInput.parent('.cfg-inp-checkbox').addClass('error');
+								optErrors = true;
+								return true;
+							}else{
+								$optInput.parents('.cfg-inp-group').find('.cfg-inp-checkbox').removeClass('error');
+							}
+						}
+
+						if(this.type == 'text' || this.type == 'textarea' || this.type == 'select-one') {
+							if($optInput.data('required') && !optVal.trim()) {
+								$optInput.addClass('error');
+								optErrors = true;
+								return true;
+							}else{
+								$optInput.removeClass('error');
+								cfg.currProdOptObj[optId].value = optVal.trim();
+							}
+
+							if($optInput.hasClass('time')) {
+								var formatTest = /^(([0,1][0-9])|(2[0-3])):[0-5][0-9]$/.test(optVal);
+								if($optInput.data('required') && !formatTest || optVal && !formatTest) {
+									$optInput.addClass('error');
+									optErrors = true;
+									return true;
+								}else{
+									$optInput.removeClass('error');
+									cfg.currProdOptObj[optId].value = optVal;
+								}
+							}
+
+							if($optInput.hasClass('date')) {
+								var formatTest = /^(19|20)\d\d-((0[1-9]|1[012])-(0[1-9]|[12]\d)|(0[13-9]|1[012])-30|(0[13578]|1[02])-31)$/.test(optVal);
+								if($optInput.data('required') && !formatTest || optVal && !formatTest) {
+									$optInput.addClass('error');
+									optErrors = true;
+									return true;
+								}else{
+									$optInput.removeClass('error');
+									cfg.currProdOptObj[optId].value = optVal;
+								}
+							}
+
+							if($optInput.hasClass('datetime')) {
+								var formatTest = /^(19|20)\d\d-((0[1-9]|1[012])-(0[1-9]|[12]\d)|(0[13-9]|1[012])-30|(0[13578]|1[02])-31)\s(([0,1][0-9])|(2[0-3])):[0-5][0-9]$/.test(optVal);
+								if($optInput.data('required') && !formatTest || optVal && !formatTest) {
+									$optInput.addClass('error');
+									optErrors = true;
+									return true;
+								}else{
+									$optInput.removeClass('error');
+									cfg.currProdOptObj[optId].value = optVal;
+								}
+							}
+						}
+					});
+
+					if(optErrors) {
+						cfg.$barTitle.html('{{ txt_opt_error }}');
+						return false;
+					}
+				}
+			}
+
+			chosenQty = (prod.chosen_qty)? prod.chosen_qty : ((qtyInputVal)? qtyInputVal : 1);
+			cfg.currProdOptObj = (prod.options)? prod.options : cfg.currProdOptObj;
+
+			var optParams = '';
+
+			for(o_i in cfg.currProdOptObj) {
+				var opt = cfg.currProdOptObj[o_i];
+
+				switch(opt.type) {
+				    case 'radio':
+				    case 'image':
+					case 'select':
+						for(pOptKey in opt.product_option_value) {
+							var pOptVal = opt.product_option_value[pOptKey];
+
+							if(pOptVal.product_option_value_id == opt.value) {
+								optParams += '&o'+sctId+'-'+opt.product_option_id+'='+opt.value;
+							}
+						}
+					break;
+					case 'checkbox':
+						var selectedOptArr = [];
+						for(oValKey in opt.value) {
+							for(pOptKey in opt.product_option_value) {
+								var pOptVal = opt.product_option_value[pOptKey];
+
+								if(pOptVal.product_option_value_id == opt.value[oValKey]) {
+									selectedOptArr.push(pOptVal.product_option_value_id);
+								}
+							}
+						}
+						if(selectedOptArr.length) {
+							optParams += '&o'+sctId+'-'+opt.product_option_id+'='+selectedOptArr.join(',');
+						}
+					break;
+					case 'text':
+					case 'textarea':
+					case 'date':
+					case 'time':
+					case 'datetime':
+						var encodedOptVal = encodeURIComponent(opt.value).replace(/[!*'()]/g, function(c) {
+							return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+						});
+
+						optParams += '&o'+sctId+'-'+opt.product_option_id+'='+encodedOptVal;
+					break;
+				}
+			}
+
+			cfg.URLParams[sctId] = 's'+sctId+'='+prodId+'q'+chosenQty+optParams;
+
+			if(cfg.$prodSelector.is(':visible')) {
+				cfg.$prodSelector.modalHide();
+				cfg.loadPage();
+			}
+
+			return false;
+		});
+	},
+
+	getShosenOptionsHTML: function(options, elClass, title) {
+		if(typeof options !== 'object' || Object.keys(options).length === 0) return '';
+
+		var elClass = (elClass)? elClass : '';
+		var optHtml = (title)? '<h4 class="opt-title">'+title+'</h4>' : '';
+
+		for(o_i in options) {
+			var opt = options[o_i];
+
+			switch(opt.type) {
+				case 'radio':
+				case 'image':
+				case 'select':
+					for(pOptKey in opt.product_option_value) {
+						var pOptVal = opt.product_option_value[pOptKey];
+
+						if(pOptVal.product_option_value_id == opt.value) {
+							optHtml += '<div class="opt-line f-row">';
+							optHtml +=		'<span class="opt-name f-col">'+opt.name+': </span>';
+							optHtml +=		'<span class="opt-value f-col">'+pOptVal.name+'</span>';
+							optHtml += '</div>';
+						}
+					}
+				break;
+				case 'checkbox':
+					for(oValKey in opt.value){
+						for(pOptKey in opt.product_option_value) {
+							var pOptVal = opt.product_option_value[pOptKey];
+
+							if(pOptVal.product_option_value_id == opt.value[oValKey]) {
+								optHtml += '<div class="opt-line f-row">';
+								optHtml +=		'<span class="opt-name f-col">'+opt.name+': </span>';
+								optHtml +=		'<span class="opt-value f-col">'+pOptVal.name+'</span>';
+								optHtml += '</div>';
+							}
+						}
+					}
+				break;
+				case 'text':
+				case 'textarea':
+				case 'date':
+				case 'time':
+				case 'datetime':
+					var strLen = 48;
+					var optValText = (opt.value.length >= strLen)? opt.value.substring(0, strLen)+'...' : opt.value;
+
+					optHtml += '<div class="opt-line f-row">';
+					optHtml +=		'<span class="opt-name f-col">'+opt.name+': </span>';
+					optHtml +=		'<span class="opt-value f-col">'+optValText+'</span>';
+					optHtml += '</div>';
+				break;
+			}
+		}
+
+		return '<div class="chosen-options '+elClass+'">'+optHtml+'</div>';
+	},
+
+	showSelectedOptions: function(sctId) {
+		if(typeof cfg.addedProdData[sctId] !== 'undefined') {
+			var trgProd = cfg.addedProdData[sctId];
+			var optHtml = cfg.getShosenOptionsHTML(trgProd.options, 'in-show-opt');
+			var mdlTitle = '<svg class="cfg-icon"><use xlink:href="#i-svg-info-crl" /></svg> ';
+				mdlTitle += '{{ txt_opt_selected }} "'+trgProd.name+'"';
+
+			if(optHtml) {
+				cfg.$popupDialog.setTitle(mdlTitle);
+				cfg.$popupDialog.setContent(optHtml);
+				cfg.$popupDialog.setBttn(true);
+				cfg.$popupDialog.modalShow();
+				return;
+			}
+		}
+
+		return false;
+	},
+
+	changeAddedProdQty: function(sctId, up) {
+		if(typeof cfg.addedProdData[sctId] !== 'undefined') {
+			var trgProdData = cfg.addedProdData[sctId];
+
+			if(up === true) {
+				if(trgProdData.chosen_qty < trgProdData.quantity) {
+					++trgProdData.chosen_qty;
+				}else{
+					cfg.$popupDialog.setTitle('<svg class="cfg-icon"><use xlink:href="#i-svg-info-crl" /></svg> {{ txt_prod_qty_max }}');
+					cfg.$popupDialog.setContent('{{ txt_prod_qty_max_a }}');
+					cfg.$popupDialog.setBttn(true);
+					cfg.$popupDialog.modalShow();
+					return;
+				}
+			}else{
+				if(trgProdData.chosen_qty > trgProdData.minimum) {
+					--trgProdData.chosen_qty;
+				}else{
+					var $bttnQtyDown = $('#section-'+sctId).find('.qty-down-bttn');
+
+					$bttnQtyDown.addClass('alert-min');
+					setTimeout(function() {
+						$bttnQtyDown.removeClass('alert-min');
+					}, 300);
+					return;
+				}
+			}
+
+			delete cfg.URLParams[sctId];
+			cfg.currProdArr = [trgProdData];
+			cfg.addProductToSection(sctId, trgProdData.product_id);
+			cfg.loadPage();
+		}
+
+		return false;
+	},
+
+	clearSection: function(sctId, sumUp) {
+		if(typeof cfg.URLParams[sctId] !== 'undefined') {
+			delete cfg.URLParams[sctId];
+			localStorage.removeItem('category_bar'+sctId);
+
+			if(sumUp !== false) cfg.loadPage();
+		}
+
+		return false;
+	},
+
+	clearAllSections: function(sumUp) {
+		for(sctId in cfg.URLParams) {
+			cfg.clearSection(sctId, false);
+		}
+
+		if(sumUp !== false) cfg.loadPage();
+	},
+
+	loadPage: function(setPath, addToHistory) {
+		if(typeof setPath === 'undefined') {
+			var path = Object.keys(cfg.URLParams).map(function(key, i) {
+				return cfg.URLParams[key];
+			}).join('&');
+		}else{
+			var path = setPath;
+		}
+
+		if(addToHistory === true || typeof setPath === 'undefined' && typeof addToHistory === 'undefined'){
+
+			if(region){				var targetURL = '{{ ext_seo_route }}' + ((path)? '{{ start_qry_smb }}region=' + region + '&' + path : '');			}else{				var targetURL = '{{ ext_seo_route }}' + ((path)? '{{ start_qry_smb }}' + path : '');			}
+
+			if(!!(window.history && history.pushState)) {
+				window.history.scrollRestoration = 'manual';
+				window.history.pushState(path, cfg.$mainTitle.text(), targetURL);
+			}else{
+				window.location.href = targetURL;
+			}
+		}
+
+		$.ajax({
+			url: '{{ ext_route }}&ajax_upd=1' + ((path)? '&' + path : ''),
+			type: 'GET',
+			dataType: 'html',
+			beforeSend: function() {
+				cfg.$sections.addClass('loading');
+			},
+			success: function(html) {
+				var $pageData = $('<div id="target-page">' + html + '</div>');
+
+				cfg.$mainTitle.html($pageData.find('#main-title').html());
+				cfg.$mainDesc.html($pageData.find('#main-desc').html());
+				cfg.$sections.html($pageData.find('#sections').html());
+				cfg.$reviews.html($pageData.find('#cfg-reviews').html());
+				$('#cfg-dinamic-data').replaceWith($pageData.find('#cfg-dinamic-data').clone());
+
+				cfg.updateDinamicData();
+				cfg.updateTotal();
+				cfg.$title.text(cfg.metaTitle);
+
+				cfg.$sections.removeClass('loading');
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				if(xhr.statusText == 'Not Found') cfg.$sections.removeClass('loading');
+				console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+
+	},
+
+	updateTotal: function() {
+		var currCost = parseFloat(cfg.$totalCost.data('total-cost'));
+
+		$({numberValue: currCost}).animate({numberValue: cfg.totalCost}, {
+			duration: 500,
+			easing: "linear",
+			step: function(numFrame) {
+				cfg.$totalCost.html(cfg.priceFormat(numFrame, false));
+			}
+		});
+
+		cfg.$totalCost.data('total-cost', cfg.totalCost);
+
+		if(cfg.progressNum) {
+			var currBuildLvl = Number(cfg.$progressLvl.data('progress-value'));
+
+			$({numberValue: currBuildLvl}).animate({numberValue: cfg.buildLvl}, {
+				duration: 500,
+				easing: "linear",
+				step: function(numFrame) {
+					cfg.$progressLblVal.text(parseInt(numFrame)+'%');
+				}
+			});
+
+			cfg.$progressLvl.width(cfg.buildLvl+'%').data('progress-value', cfg.buildLvl).attr('aria-valuenow', cfg.buildLvl);
+		}
+	},
+
+	addToCart: function() {
+		var errorAdding = [];
+		var requestData = [];
+		var count = 0;
+
+		$.each(cfg.addedProdData, function(sctId, prod) {
+			var selectedOptions = {};
+			for(pOptId in prod.options) {
+				selectedOptions[pOptId] = prod.options[pOptId].value;
+			}
+
+			count++;
+			requestData[count] = {
+				'section_id' : sctId,
+				'product_id' : prod.product_id,
+				'quantity' : prod.chosen_qty,
+				'options' : selectedOptions
+			};
+		});
+
+		if(!count) {
+			cfg.$popupDialog.setTitle('{{ txt_prod_not_added }}');
+			cfg.$popupDialog.setContent('{{ txt_prod_not_added_a }}');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return false;
+		}
+
+		if($('.section.required:not(.added-product)').length) {
+			cfg.$popupDialog.setTitle('{{ txt_rqrd_not_filled }}');
+			cfg.$popupDialog.setContent('{{ txt_rqrd_not_filled_a }}');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return false;
+		}
+
+		if(cfg.progressNum && cfg.progressMin && cfg.buildLvl < cfg.progressMin) {
+			cfg.$popupDialog.setTitle('{{ txt_err_prss_min_lvl }}');
+			cfg.$popupDialog.setContent('{{ txt_err_prss_min_lvl_a }}'.replace('%d', '{{ progress_min }}%'));
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return false;
+		}
+
+		cfg.requestToCart(requestData, count, errorAdding);
+
+		cfg.$popupDialog.setTitle('{{ txt_send_to_cart }}');
+		cfg.$popupDialog.setContent(cfg.$preloader);
+		cfg.$popupDialog.modalShow();
+	},
+
+	requestToCart: function(requestData, count, errorAdding) {
+		$.ajax({
+			url: 'index.php?route=checkout/cart/add',
+			type: 'post',
+			data: {
+				'product_id': requestData[count].product_id,
+				'quantity': requestData[count].quantity,
+				'option': requestData[count].options
+			},
+			dataType: 'JSON',
+			success: function(response) {
+				if(response.success) {
+					cfg.clearSection(requestData[count].section_id, false);
+				}else{
+					errorAdding.push(requestData[count].product_id);
+				}
+
+				if(count > 1) {
+					count--;
+					cfg.requestToCart(requestData, count, errorAdding);
+				}else{
+					cfg.updateTotal();
+
+					if(!errorAdding.length) {
+						cfg.$popupDialog.setTitle('{{ txt_prod_added }}');
+						cfg.$popupDialog.setContent('{{ txt_prod_added_i }}');
+						cfg.$popupDialog.setBttn(true, true);
+					}else{
+						cfg.$popupDialog.setTitle('{{ txt_prod_add_err }}');
+						cfg.$popupDialog.setContent('{{ txt_prod_add_err_a }} ('+errorAdding.length+'{{ txt_qty_unit }}). <br>{{ txt_prod_add_err_b }}');
+						cfg.$popupDialog.setBttn(true);
+					}
+
+					$('#cart > ul').load('index.php?route=common/cart/info ul li');
+					$('#cart-total').html(response['total']);
+					cfg.reportAddedToCart(errorAdding);
+					cfg.loadPage();
+				}
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+	},
+
+	reportAddedToCart: function(errorAdding) {
+		$.ajax({
+			url: '{{ ext_route }}/reportAddedToCart',
+			data: {'wrong_prod_id_arr': errorAdding},
+			type: 'POST',
+			dataType: 'JSON',
+			error: function(error) {
+				if(error.statusText == 'error') {
+					console.log(JSON.stringify(error));
+				}
+			}
+		});
+	},
+
+	getConfigurationTableHTML: function(elClass, title) {
+		var html = '';
+		var elClass = (elClass)? elClass : '';
+		var tableTitle = (title)? '<h3 class="cfg-table-title">'+title+'</h3>' : '';
+		var count = 0;
+
+			html += '<div class="cfg-table-wrap '+elClass+'">';
+			html += 	tableTitle;
+			html += 	'<table class="cfg-table">';
+			html += 		'<thead>';
+			html += 			'<tr>';
+			html += 				'<th class="sct-count">#</th>';
+			html += 				'<th class="sct-name">{{ txt_cfg_tbl_section }}</th>';
+			html += 				'<th class="prod-name">{{ txt_cfg_tbl_name }}</th>';
+			html += 				'<th class="prod-article">{{ txt_cfg_tbl_article }}</th>';
+			html += 				'<th class="prod-qty">{{ txt_cfg_tbl_count }}</th>';
+			html +=		 			'<th class="prod-total">{{ txt_cfg_tbl_price }}</th>';
+			html += 			'</tr>';
+			html += 		'</thead>';
+			html += 		'<tbody>';
+
+			for(sctId in cfg.addedProdData) {
+				var prod = cfg.addedProdData[sctId];
+				var optHtml = cfg.getShosenOptionsHTML(prod.options, elClass);
+
+				count++;
+				html += 	'<tr>';
+				html += 		'<td class="sct-count">' + count + '</td>';
+				html += 		'<td class="sct-name">' + cfg.sectionsData[sctId].name + '</td>';
+				html += 		'<td class="prod-name">' + prod.name + optHtml +'</td>';
+				html += 		'<td class="prod-article">' + ((prod.sku)? prod.sku : '---') + '</td>';
+				html += 		'<td class="prod-qty">' + prod.chosen_qty + '{{ txt_qty_unit }}</td>';
+				html += 		'<td class="prod-total">' + cfg.priceFormat(prod.total_cost, false) + '</td>';
+				html += 	'</tr>';
+			}
+
+			html += 		'<tr class="cfg-total-row">';
+			html += 			'<td class="total-txt" colspan="5">{{ txt_cfg_tbl_total }}</td>';
+			html += 			'<td class="total-val">' + cfg.priceFormat(cfg.totalCost, false) + '</td>';
+			html += 		'</tr>';
+
+			html += 		'</tbody>';
+			html += 	'</table>';
+			html += '</div>';
+
+
+			console.log(cfg.addedProdData);
+
+
+			var dataxlsx;
+
+			dataxlsx = {region: region, data: cfg.addedProdData}
+
+			console.log(dataxlsx);
+
+
+			$.ajax({
+				url: 'index.php?route=product/product/xlsx',
+				type: 'post',
+				dataType: 'json',
+				data: cfg.addedProdData,
+
+				success: function(json) {
+					console.log(json);
+
+					if(json['url']){
+						window.open(json['url']);
+					}
+				}
+
+
+			});
+
+
+		return html;
+	},
+
+	printConfiguration: function() {
+		if(Object.keys(cfg.addedProdData).length === 0) {
+			cfg.$popupDialog.setTitle('{{ txt_prod_not_added }}');
+			cfg.$popupDialog.setContent('{{ txt_prod_not_added_a }}');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return;
+		}
+
+		var html = '';
+
+		{% if prt_title %}
+		html += '<div class="page-info f-col-12"><h5>{{ prt_title }}</h5></div>';
+		{% endif %}
+		html += '<div class="adress f-col">';
+		{% if prt_logo %}
+		html += 	'<div class="logo-img"><img src="{{ prt_logo }}"></div>';
+		{% endif %}
+		{% if prt_contcs %}
+		html += 	'<div class="contacts">{{ prt_contcs }}</div>';
+		{% endif %}
+		html += '</div>';
+		{% if prt_qr_code %}
+		html += '<div class="qrcode f-col">';
+		html += 	'<img src="http://chart.apis.google.com/chart?choe=UTF-8&chld=H&cht=qr&chs=500x500&chl={{ prt_qr_code }}">';
+		html += '</div>';
+		{% endif %}
+		{% if prt_text %}
+		html += '<div class="info f-col-12">';
+		html += 	'<span>{{ prt_text }}</span>';
+		html += '</div>';
+		{% endif %}
+		{% if prt_tbl_title %}
+		html += cfg.getConfigurationTableHTML('in-print f-col-12', '{{ prt_tbl_title }}');
+		{% else %}
+		html += cfg.getConfigurationTableHTML('in-print f-col-12');
+		{% endif %}
+		{% if prt_notice %}
+		html += '<div class="notice f-col-12">';
+		html += 	'<span>{{ prt_notice }}</span>';
+		html += '</div>';
+		{% endif %}
+
+		$(document.body).prepend('<div id="print-box" class="f-row">' + html + '</div>');
+
+		setTimeout(function() {
+			window.print();
+			$('#print-box').remove();
+		}, 500);
+	},
+
+	getConfigurationSaveHTML: function(elClass, title) {
+		var html = '';
+		var elClass = (elClass)? elClass : '';
+		var tableTitle = (title)? '<h3 class="cfg-table-title">'+title+'</h3>' : '';
+
+		var href =	window.location.href;
+		var count = 0;
+
+			html += '<div class="cfg-table-wrap '+elClass+'">';
+			html += 	tableTitle;
+            html += '<form id="save-cfg">';
+			html += '<div class="content-wrap limited-width"><br>';
+			html += '<div class="col-md-12 col-xs-12">';
+			html += '<label>';
+			html += 'Заголовок';
+			html += '</label>';
+			html += '<div class="lang-input-group">';
+			html += '<div class="inp-lang-value lang-id-1 active-lang" data-lang-id="1">';
+			html += '<input type="text" class="form-control" name="preset[lang_values][1][name]" data-text-limit="250" value=""></div>';
+			html += '</div>';
+			html += '<br>';
+			html += '</div>';
+			html += '<div class="col-md-12 col-xs-12">';
+			html += '<label>Категория</label>';
+			html += '<select name="preset[category_id]" class="form-control select-group">';
+			html += '<option selected="" value="0">Без категории</option>';
+			html += '<option value="1">ЩАВРСС</option>';
+			html += '<option value="2">ЩРСС 3.1</option>';
+			html += '<option value="3">ЩРСС 3.2</option>';
+			html += '<option value="4">ЩРСС 2.1</option>';
+			html += '<option value="5">ЩРСС 2.3</option>';
+			html += '<option value="6">ЩРСС1</option>';
+			html += '<option value="7">ВРУ</option>';
+			html += '</select>';
+			html += '<br>';
+			html += '</div>';
+			html += '<div class="col-md-12 col-xs-12">';
+			html += '<label>Краткое описание</label>';
+			html += '<div class="lang-input-group">';
+			html += '<div class="inp-lang-value lang-id-1 active-lang" data-lang-id="1">';
+			html += '<input type="text" class="form-control" name="preset[lang_values][1][brief_desc]" data-text-limit="1000" value=""</div>';
+			html += '</div>';
+			html += '<br>';
+			html += '</div>';
+			html += '<input type="hidden" name="preset[status]" value="1">';
+			html += '<input type="hidden" name="preset[link]" value="' + href + '">';
+
+			html += '<input type="hidden" name="preset[id]" value="">';
+
+			html += '<div class="bttn-wrap bw-close f-col" style="display: block;"><button type="submit" name="send" value="Отправить" class="bttn" >Сохранить</button></div>';
+			html += '</form>';
+
+			html += '</div>';
+
+			html += '</div>';
+
+			$(function(){
+			    $('#save-cfg').on('submit', function(){
+			        $.ajax({
+			            url: 'index.php?route=extension/module/configurator/save',
+			            data: $(this).serialize(),
+			            method: 'POST',
+			            dataType: 'json',
+			            success: function(json){
+			                console.log(json);
+			            }
+			        });
+			        return false;
+			    });
+			});
+
+		return html;
+	},
+
+	showConfigurationSave: function() {
+		if(Object.keys(cfg.addedProdData).length === 0) {
+			cfg.$popupDialog.setTitle('{{ txt_prod_not_added }}');
+			cfg.$popupDialog.setContent('{{ txt_prod_not_added_a2 }}');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return;
+		}else{
+			var presetTitle = (cfg.isPresetPage)? '"'+cfg.$mainTitle.text()+'"' : '';
+
+			cfg.$popupDialog.setTitle('Сохранение конфигурации');
+			cfg.$popupDialog.setContent(cfg.getConfigurationSaveHTML('show-cfg-table', presetTitle));
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow('mdl-cfg-table');
+			return;
+		}
+	},
+
+	showConfigurationTable: function() {
+		if(Object.keys(cfg.addedProdData).length === 0) {
+			cfg.$popupDialog.setTitle('{{ txt_prod_not_added }}');
+			cfg.$popupDialog.setContent('{{ txt_prod_not_added_a }}');
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow();
+			return;
+		}else{
+			var presetTitle = (cfg.isPresetPage)? '"'+cfg.$mainTitle.text()+'"' : '';
+
+			cfg.$popupDialog.setTitle('{{ txt_show_cfg_table }}');
+			cfg.$popupDialog.setContent(cfg.getConfigurationTableHTML('show-cfg-table', presetTitle));
+			cfg.$popupDialog.setBttn(true);
+			cfg.$popupDialog.modalShow('mdl-cfg-table');
+			return;
+		}
+	},
+
+	priceFormat: function(price, clean) {
+		var fPrice = parseFloat(price);
+
+		if(!fPrice && clean) {
+			return '';
+		}else{
+			fPrice *= {{ currency["rate"] }};
+			fPrice = String(fPrice.toFixed({{ currency["d_place"] }}));
+
+			return '{{ currency["smb_left"] }}' + fPrice + '{{ currency["smb_right"] }}';
+		}
+	},
+
+{% if another_img %}
+	bindProdImgSliding: function() {
+		cfg.intervalId		= [];
+		cfg.mEnterID		= [];
+		cfg.img_data_arr	= [];
+
+		cfg.$prodSelector.on('mouseenter', '.pl-item > .prod-img', function() {
+			var $imgWrap	= $(this);
+			var $imgEl		= $imgWrap.children('img');
+			var primImgURL	= $imgEl.attr('src');
+			var prodId		= $imgWrap.parent('.pl-item').data('prod-id');
+			var dalay		= 1000;
+
+			if(typeof cfg.img_data_arr[prodId] !== 'undefined' && cfg.img_data_arr[prodId] === null) {
+				return;
+			}else{
+				cfg.mEnterID[prodId] = true;
+			}
+
+			$imgWrap.one('mouseleave', function() {
+				cfg.mEnterID[prodId] = false;
+				clearInterval(cfg.intervalId[prodId]);
+				$imgEl.attr('src', primImgURL);
+			});
+
+			if(cfg.img_data_arr[prodId])	{
+				var counter = 0;
+				var countMax = cfg.img_data_arr[prodId].length - 1;
+
+				$imgWrap.addClass('ready');
+
+				cfg.intervalId[prodId] = setInterval(function() {
+					if(cfg.mEnterID[prodId]) {
+						$imgEl.attr('src', cfg.img_data_arr[prodId][counter]);
+						counter = (counter >= countMax)? 0 : ++counter;
+					}else{
+						clearInterval(cfg.intervalId[prodId]);
+					}
+				}, dalay);
+			}else{
+				$.ajax({
+					url: '{{ ext_route }}/getProductImages',
+					data: {'product_id': prodId},
+					type: 'POST',
+					dataType: 'JSON',
+					success: function(img_data) {
+						if(img_data.length) {
+							cfg.img_data_arr[prodId] = img_data;
+							cfg.img_data_arr[prodId].push(primImgURL);
+
+							var counter = 0;
+							var countMax = cfg.img_data_arr[prodId].length - 1;
+
+							$imgWrap.addClass('ready');
+
+							cfg.intervalId[prodId] = setInterval(function() {
+								if(cfg.mEnterID[prodId]) {
+									$imgEl.attr('src', cfg.img_data_arr[prodId][counter]);
+									counter = (counter >= countMax)? 0 : ++counter;
+								}else{
+									clearInterval(cfg.intervalId[prodId]);
+								}
+							}, dalay);
+						}else{
+							cfg.img_data_arr[prodId] = null;
+						}
+					},
+					error: function(error) {
+						console.log(JSON.stringify(error));
+					}
+				});
+			}
+		});
+	},
+{% endif %}
+
+{% if rvw_status %}
+	bindReviewHandlers: function() {
+		cfg.$reviews.on('submit', '#form-review-m-post', function(e) {
+			e.preventDefault();
+			var $formWrap = $(this).parent('.review-form');
+			var $rvwPreloader = $(this).next('.cfg-preloader');
+			var sendData = {};
+
+			$(this).find('[name^="rvw_"]').each(function() {
+				var key = this.name.replace('rvw_', '');
+				sendData[key] = $(this).val();
+			});
+
+			$.ajax({
+				url: '{{ ext_route }}/addReviewOfPreset',
+				data: sendData,
+				type: 'POST',
+				dataType: 'JSON',
+				beforeSend: function() {
+					$('.rvw-action-msg').parent().remove();
+					$('.rvw-error').removeClass('.rvw-error').find('.rvw-err-msg').remove();
+					$rvwPreloader.fadeIn(150);
+				},
+				success: function(errors) {
+					if(typeof errors !== 'object' || typeof errors === 'object' && errors.common_err) {
+						$formWrap.find('.f-row').prepend(
+							'<div class="f-col-12">'+
+								'<div class="rvw-action-msg msg-error">'+errors.common_err+'</div>'+
+							'</div>'
+						);
+					}else if(!Object.keys(errors).length) {
+						$formWrap.find('.f-row').html(
+							'<div class="f-col-12">'+
+								'<div class="rvw-action-msg msg-success">{{ txt_rvw_success }}</div>'+
+							'</div>'
+						);
+					}else{
+						$.each(errors, function(key, textMsg) {
+							$('#rvw-'+key).parent().addClass('rvw-error').children('.rvw-label').append(
+								'<span class="rvw-err-msg"> - ' + textMsg + '</span>'
+							);
+						});
+					}
+
+					$rvwPreloader.fadeOut(150);
+				},
+				error: function(error) {
+					if(error.statusText == 'error') {
+						console.log(JSON.stringify(error));
+					}
+				}
+			});
+		});
+
+		cfg.$reviews.on('click', '#show-all-reviews', function() {
+			var thisEl = $(this);
+			var lCode = $('#form-review-m-post > input[name="rvw_l_code"]').val();
+			var rvwStart = $('#preset-review-list > .pr-item').length;
+
+			$.ajax({
+				url: '{{ ext_route }}/getRestReviewsOfPreset',
+				data: {
+					'l_code': lCode,
+					'rvw_start': rvwStart,
+				},
+				type: 'POST',
+				dataType: 'JSON',
+				beforeSend: function() {
+					thisEl.text('{{ txt_pls_wait }}');
+				},
+				success: function(response) {
+					var userId = {{ (user)? user['id'] : 'null' }};
+					var html = '';
+
+					$.each(response, function(i, review) {
+						html += '<div class="pr-item">';
+						html +=		'<div class="pr-header f-row align-center justify-end '+((userId == review.customer_id)? 'by-user': '')+'">';
+						html +=			'<div class="autor f-col">'+review.autor+'</div>';
+						if(review.recommend) {
+							html +=		'<div class="recommend-y">{{ txt_rvw_recommend_y }}</div>';
+						}else{
+							html +=		'<div class="recommend-n">{{ txt_rvw_recommend_n }}</div>';
+						}
+						html +=			'<div class="rating">';
+						for(var i = 1; i <= 5; i++) {
+							html += (i <= review.rating)? '<span class="r-star">&#9733;</span>' : '<span class="r-star void">&#9733;</span>';
+						}
+						html +=			'</div>';
+						html +=		'</div>';
+						html +=		'<div class="positive">';
+						html +=			'<div class="pr-title">{{ txt_rvw_positive }}</div>'+review.positive;
+						html +=		'</div>';
+						html +=		'<div class="negative">';
+						html +=			'<div class="pr-title">{{ txt_rvw_negative }}</div>'+review.negative;
+						html +=		'</div>';
+						html +=		'<div class="review">';
+						html +=			'<div class="pr-title">{{ txt_rvw_review }}</div>'+review.review;
+						html +=		'</div>';
+						html +=		'<div class="pr-footer f-row align-center justify-between">';
+						html +=			'<div class="date f-col-auto xs-12"><time>'+review.date_added+'</time></div>';
+						html +=			'<div class="review-rate f-col-auto xs-12 f-row nowrap align-center justify-center" data-review-id="'+review.id+'">';
+						html +=				'<span class="rr-title">{{ txt_rvw_rate_title }} </span>';
+						if(review.voted !== false) {
+							if(review.voted) {
+								var likesClass = 'chosen';
+								var dislikesClass = '';
+							}else{
+								var likesClass = '';
+								var dislikesClass = 'chosen';
+							}
+							html +=			'<button class="bttn bttn-likes disabled '+likesClass+'" disabled><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-up" /></svg> <span class="vote-count">'+review.likes+'</span></button>';
+							html +=			'<button class="bttn bttn-dislikes disabled '+dislikesClass+'" disabled><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-down" /></svg> <span class="vote-count">'+review.dislikes+'</span></button>';
+						}else{
+							html +=			'<button class="bttn bttn-likes"><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-up" /></svg> <span class="vote-count">'+review.likes+'</span></button>';
+							html +=			'<button class="bttn bttn-dislikes"><svg class="cfg-icon"><use xlink:href="#i-svg-thumbs-down" /></svg> <span class="vote-count">'+review.dislikes+'</span></button>';
+						}
+						html += 		'</div>';
+						html +=		'</div>';
+						html += '</div>';
+					});
+
+					thisEl.parent('.pr-list-loader').replaceWith(html);
+				},
+				error: function(error) {
+					if(error.statusText == 'error') {
+						console.log(JSON.stringify(error));
+					}
+				}
+			});
+		});
+
+		cfg.$reviews.on('click', '.review-rate > .bttn-likes:not([disabled]), .review-rate > .bttn-dislikes:not([disabled])', function() {
+			var $voteBtn = $(this);
+			var reviewId = $voteBtn.parent().data('review-id');
+			var vote = Number($voteBtn.hasClass('bttn-likes'));
+			var currentVal = parseInt($voteBtn.children('.vote-count').text());
+
+			$.ajax({
+				url: '{{ ext_route }}/voteForReviewOfPreset',
+				data: {
+					'review_id': reviewId,
+					'vote': vote
+				},
+				type: 'POST',
+				dataType: 'JSON',
+				beforeSend: function() {
+				},
+				success: function(error) {
+					$voteBtn.parent().children('.bttn').addClass('disabled').prop('disabled', true);
+
+					if(!error) {
+						$voteBtn.addClass('chosen').children('.vote-count').text(++currentVal);
+					}else{
+						console.log(errors);
+					}
+				},
+				error: function(error) {
+					if(error.statusText == 'error') {
+						console.log(JSON.stringify(error));
+					}
+				}
+			});
+
+		});
+
+	},
+{% endif %}
+};
+
+cfg.init();
+
+
+
+//Custom snippet
+{% if custom_js %}
+	{{ custom_js|raw }}
+{% endif %}
+
+</script>
+
+<svg id="cfg-ico-sprite" style="display:none;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<symbol viewBox="0 0 24 24" id="i-svg-cart">
+		<path fill="currentColor" d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-table-cnt">
+		<path fill="currentColor" d="M3,9H17V7H3V9M3,13H17V11H3V13M3,17H17V15H3V17M19,17H21V15H19V17M19,7V9H21V7H19M19,13H21V11H19V13Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-print">
+		<path fill="currentColor" d="M18,3H6V7H18M19,12A1,1 0 0,1 18,11A1,1 0 0,1 19,10A1,1 0 0,1 20,11A1,1 0 0,1 19,12M16,19H8V14H16M19,8H5A3,3 0 0,0 2,11V17H6V21H18V17H22V11A3,3 0 0,0 19,8Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-close">
+		<path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-close-b">
+		<path fill="currentColor" d="M20 6.91L17.09 4L12 9.09L6.91 4L4 6.91L9.09 12L4 17.09L6.91 20L12 14.91L17.09 20L20 17.09L14.91 12L20 6.91Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-plus">
+		<path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-change">
+		<path fill="currentColor" d="M21,9L17,5V8H10V10H17V13M7,11L3,15L7,19V16H14V14H7V11Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-minus">
+		<path fill="currentColor" d="M19,13H5V11H19V13Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-check">
+		<path fill="currentColor" d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-lock">
+		<path fill="currentColor" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-arrow-r">
+		<path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-info-crl">
+		<path fill="currentColor" d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-info-crl-ol">
+			<path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-chev-up">
+		<path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-chev-down">
+		<path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-thumbs-up">
+		<path fill="currentColor" d="M23,10C23,8.89 22.1,8 21,8H14.68L15.64,3.43C15.66,3.33 15.67,3.22 15.67,3.11C15.67,2.7 15.5,2.32 15.23,2.05L14.17,1L7.59,7.58C7.22,7.95 7,8.45 7,9V19A2,2 0 0,0 9,21H18C18.83,21 19.54,20.5 19.84,19.78L22.86,12.73C22.95,12.5 23,12.26 23,12V10M1,21H5V9H1V21Z" />
+	</symbol>
+	<symbol viewBox="0 0 24 24" id="i-svg-thumbs-down">
+		<path fill="currentColor" d="M19,15H23V3H19M15,3H6C5.17,3 4.46,3.5 4.16,4.22L1.14,11.27C1.05,11.5 1,11.74 1,12V14A2,2 0 0,0 3,16H9.31L8.36,20.57C8.34,20.67 8.33,20.77 8.33,20.88C8.33,21.3 8.5,21.67 8.77,21.94L9.83,23L16.41,16.41C16.78,16.05 17,15.55 17,15V5C17,3.89 16.1,3 15,3Z" />
+	</symbol>
+</svg>
+{% endif %}
